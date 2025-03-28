@@ -18,4 +18,4 @@ class ApiService {
   }
 }
 const API_URL = import.meta.env.VITE_API_URL
-export default new ApiService('https://localhost:7201')
+export default new ApiService(API_URL)
