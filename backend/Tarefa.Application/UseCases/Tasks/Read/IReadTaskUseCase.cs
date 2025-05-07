@@ -4,6 +4,6 @@ namespace Tarefa.Application.UseCases.Tasks.Read
 {
     public interface IReadTaskUseCase
     {
-        public Task<List<DtoReadTasks>> GetTasks();
+        public Task<List<DtoReadTasks>> GetTasks(long userId);
     }
 }

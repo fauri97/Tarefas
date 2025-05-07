@@ -7,11 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Tarefa.Domain\Tarefa.Domain.csproj" />
+    <ProjectReference Include="..\Tarefa.Exception\Tarefa.Exceptions.csproj" />
     <ProjectReference Include="..\Tarefa.Infra\Tarefa.Infra.csproj" />
   </ItemGroup>
 

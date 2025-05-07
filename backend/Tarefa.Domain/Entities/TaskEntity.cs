@@ -6,5 +6,9 @@
         public DateTime ExpectedDate { get; set; }
         public DateTime? ClosedAt { get; set; }
         public bool Status { get; set; } = false;
+
+
+        public long UserId { get; set; }
+        public User? User { get; set; }
     }
 }

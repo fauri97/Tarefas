@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tarefa.Application\Tarefa.Application.csproj" />
+    <ProjectReference Include="..\Tarefa.Exception\Tarefa.Exceptions.csproj" />
     <ProjectReference Include="..\Tarefa.Infra\Tarefa.Infra.csproj" />
   </ItemGroup>
 

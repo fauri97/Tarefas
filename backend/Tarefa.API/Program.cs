@@ -1,6 +1,10 @@
+using Microsoft.OpenApi.Models;
 using Tarefa.API.Converters;
-using Tarefa.Infra;
+using Tarefa.API.Filters;
+using Tarefa.API.Token;
 using Tarefa.Application;
+using Tarefa.Domain.Security.Tokens;
+using Tarefa.Infra;
 using Tarefa.Infra.Extensions;
 using Tarefa.Infra.Migrations;
 
@@ -15,11 +19,44 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
-builder.Services.AddControllers().AddJsonOptions(opt =>
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilter>();
+})
+.AddJsonOptions(opt =>
 {
     opt.JsonSerializerOptions.Converters.Add(new StringConverter());
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below. Example: 'Bearer 1234abcdef'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -35,6 +72,12 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<ApiExceptionFilter>();
+
+builder.Services.AddScoped<AuthenticatedUserFilter>();
+builder.Services.AddScoped<ITokenProvider, HttpContextTokenValue>();
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfra(builder.Configuration);
 

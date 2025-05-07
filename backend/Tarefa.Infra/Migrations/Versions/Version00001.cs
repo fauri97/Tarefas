@@ -9,8 +9,8 @@ namespace Tarefa.Infra.Migrations.Versions
         {
             CreateTable("Tasks")
                 .WithColumn("Description").AsString().NotNullable()
-                .WithColumn("ExpectedDate").AsDateTime().NotNullable()
-                .WithColumn("ClosedAt").AsDateTime().Nullable()
+                .WithColumn("ExpectedDate").AsCustom("timestamp with time zone").NotNullable()
+                .WithColumn("ClosedAt").AsCustom("timestamp with time zone").Nullable()
                 .WithColumn("Status").AsBoolean().NotNullable().WithDefaultValue(false);
         }
     }

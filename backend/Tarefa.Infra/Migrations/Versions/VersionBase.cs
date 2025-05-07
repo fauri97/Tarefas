@@ -7,11 +7,11 @@ namespace Tarefa.Infra.Migrations.Versions
     {
         protected ICreateTableColumnOptionOrWithColumnSyntax CreateTable(string tableName)
         {
-            return Create.Table(tableName)
-                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("CreatedAt").AsDateTime().NotNullable().WithDefaultValue(System.DateTime.UtcNow)
-                .WithColumn("UpdatedAt").AsDateTime().Nullable()
-                .WithColumn("DeletedAt").AsDateTime().Nullable();
+            return Create.Table(tableName)        
+                .WithColumn("Id").AsInt64().PrimaryKey().Identity()        
+                .WithColumn("CreatedAt").AsCustom("timestamp with time zone").NotNullable().WithDefault(SystemMethods.CurrentUTCDateTime)        
+                .WithColumn("UpdatedAt").AsCustom("timestamp with time zone").Nullable()        
+                .WithColumn("DeletedAt").AsCustom("timestamp with time zone").Nullable();
         }
     }
 }
