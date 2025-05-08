@@ -33,7 +33,7 @@ namespace Tarefa.API.Filters
                     new(ClaimTypes.Name, exist.Name)
                 };
 
-                var identity = new ClaimsIdentity(claims, "MantenSysCustom");
+                var identity = new ClaimsIdentity(claims, "TarefasCustoms");
                 context.HttpContext.User = new ClaimsPrincipal(identity);
             }
             catch (TarefasException ex)

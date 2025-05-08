@@ -49,6 +49,7 @@ const handleRegister = async () => {
         alert('Usuário criado com sucesso!')
         router.push('/')
     } catch (error) {
+        console.log(error)
         alert('Erro ao cadastrar usuário. Email já utilizado.')
     } finally {
         isLoading.value = false
