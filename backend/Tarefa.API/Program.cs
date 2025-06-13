@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using System.Globalization;
 using Tarefa.API.Converters;
 using Tarefa.API.Filters;
 using Tarefa.API.Token;
@@ -11,7 +12,12 @@ using Tarefa.Infra.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-System.Console.OutputEncoding = System.Text.Encoding.UTF8;
+var cultureInfo = new CultureInfo("pt-BR");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 
 // Add services to the container.
 

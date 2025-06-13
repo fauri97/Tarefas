@@ -2,8 +2,11 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "tarefas-app"
+    LANG = 'pt_BR.UTF-8'
+    LC_ALL = 'pt_BR.UTF-8'
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = 'false'
   }
+
 
   stages {
     stage('Clone do repositório') {
