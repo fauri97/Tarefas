@@ -6,13 +6,25 @@ pipeline {
   }
 
   stages {
-    stage('Clone') {
+    stage('Clone do repositório') {
       steps {
         checkout scm
       }
     }
 
-    stage('Build Docker image') {
+    stage('Restaurar dependências') {
+      steps {
+        sh 'dotnet restore ./backend/Tarefas.sln'
+      }
+    }
+
+    stage('Rodar testes unitários') {
+      steps {
+        sh 'dotnet test ./backend/Tarefas.sln --no-restore --verbosity normal'
+      }
+    }
+
+    stage('Build da imagem Docker') {
       steps {
         sh 'docker build -t ${IMAGE_NAME}:latest .'
       }
