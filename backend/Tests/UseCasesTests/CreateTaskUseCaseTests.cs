@@ -46,13 +46,14 @@ public class CreateTaskUseCaseTests
             UserId = _faker.Random.Long(1)
         };
 
+        _mapperMock.Setup(m => m.Map<TaskEntity>(dto)).Returns(entity);
+
         var resultDto = new CreatedTaskDto
         {
             Id = entity.Id,
             Description = dto.Description
         };
 
-        _mapperMock.Setup(m => m.Map<TaskEntity>(dto)).Returns(entity);
         _mapperMock.Setup(m => m.Map<CreatedTaskDto>(entity)).Returns(resultDto);
 
         var result = await _useCase.ExecuteAsync(dto, entity.UserId);
