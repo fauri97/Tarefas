@@ -7,7 +7,6 @@ pipeline {
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = 'false'
   }
 
-
   stages {
     stage('Clone do repositório') {
       steps {
@@ -29,7 +28,7 @@ pipeline {
 
     stage('Build da imagem Docker') {
       steps {
-        sh 'docker build -t ${IMAGE_NAME}:latest .'
+        sh 'docker build -t tarefas-api:latest .'
       }
     }
 
@@ -47,6 +46,7 @@ pipeline {
         branch 'main'
       }
       steps {
+        input message: 'Deseja implantar em produção?', ok: 'Sim, implantar'
         dir('/home/univates/apps/producao') {
           sh 'docker compose down || true'
           sh 'docker compose up -d --build'
