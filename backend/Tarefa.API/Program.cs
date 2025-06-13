@@ -11,7 +11,7 @@ using Tarefa.Infra.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Console.OutputEncoding = System.Text.Encoding.UTF8;
+System.Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 // Add services to the container.
 

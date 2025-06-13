@@ -76,6 +76,7 @@ public class CreateTaskUseCaseTests
         var ex = await Assert.ThrowsAsync<BusinessValidationException>(() => _useCase.ExecuteAsync(dto, _faker.Random.Long(1)));
 
         Assert.Contains("Descrição é obrigatória.", ex.Errors);
+
         Assert.Contains("Descrição deve ter pelo menos 3 caracteres.", ex.Errors);
     }
 
