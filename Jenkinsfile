@@ -6,27 +6,36 @@ pipeline {
   }
 
   stages {
-    stage('Clonar código') {
+    stage('Clone') {
       steps {
         checkout scm
       }
     }
 
-    stage('Build da imagem Docker') {
+    stage('Build Docker image') {
       steps {
         sh 'docker build -t ${IMAGE_NAME}:latest .'
       }
     }
 
-    stage('Parar containers antigos') {
+    stage('Deploy Homologação') {
       steps {
-        sh 'docker compose -f docker-compose.yml down || true'
+        dir('/home/univates/apps/homolog') {
+          sh 'docker compose down || true'
+          sh 'docker compose up -d --build'
+        }
       }
     }
 
-    stage('Subir nova versão') {
+    stage('Deploy Produção') {
+      when {
+        branch 'main'
+      }
       steps {
-        sh 'docker compose -f docker-compose.yml up -d --build'
+        dir('/home/univates/apps/producao') {
+          sh 'docker compose down || true'
+          sh 'docker compose up -d --build'
+        }
       }
     }
   }
