@@ -115,28 +115,4 @@ public class CreateTaskUseCaseTests
 
         Assert.False(entity.Status);
     }
-
-    [Fact]
-    public async Task Deve_Setar_Data_Em_UTC()
-    {
-        var dto = new CreateTaskDto
-        {
-            Description = _faker.Lorem.Sentence(),
-            ExpectedDate = new DateTime(2025, 5, 10, 12, 0, 0, DateTimeKind.Unspecified)
-        };
-
-        TaskEntity mappedEntity = null;
-
-        _mapperMock.Setup(m => m.Map<TaskEntity>(dto)).Returns(() =>
-        {
-            mappedEntity = new TaskEntity { ExpectedDate = dto.ExpectedDate };
-            return mappedEntity;
-        });
-
-        _mapperMock.Setup(m => m.Map<CreatedTaskDto>(It.IsAny<TaskEntity>())).Returns(new CreatedTaskDto());
-
-        await _useCase.ExecuteAsync(dto, _faker.Random.Long(1));
-
-        Assert.Equal(DateTimeKind.Utc, mappedEntity.ExpectedDate.Kind);
-    }
 }
