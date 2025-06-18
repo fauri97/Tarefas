@@ -5,9 +5,11 @@ pipeline {
     LANG = 'pt_BR.UTF-8'
     LC_ALL = 'pt_BR.UTF-8'
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = 'false'
+    IMAGE_NAME = 'tarefas-api:latest'
   }
 
   stages {
+
     stage('Clone do repositório') {
       steps {
         checkout scm
@@ -28,15 +30,17 @@ pipeline {
 
     stage('Build da imagem Docker') {
       steps {
-        sh 'docker build -t tarefas-api:latest .'
+        sh "docker build -t ${IMAGE_NAME} ."
       }
     }
 
     stage('Deploy Homologação') {
       steps {
-        dir('/home/univates/apps/homolog') {
-          sh 'docker-compose -f docker-compose.homolog.yml down || true'
-          sh 'docker-compose -f docker-compose.homolog.yml up -d --build'
+        script {
+          deployApp(
+            envPath: '/home/univates/apps/homolog',
+            composeFile: 'docker-compose.homolog.yml'
+          )
         }
       }
     }
@@ -47,11 +51,28 @@ pipeline {
       }
       steps {
         input message: 'Deseja implantar em produção?', ok: 'Sim, implantar'
-        dir('/home/univates/apps/producao') {
-          sh 'docker-compose -f docker-compose.producao.yml down || true'
-          sh 'docker-compose -f docker-compose.producao.yml up -d --build'
+        script {
+          deployApp(
+            envPath: '/home/univates/apps/producao',
+            composeFile: 'docker-compose.producao.yml'
+          )
         }
       }
     }
+  }
+}
+
+def deployApp(Map config) {
+  sh "mkdir -p ${config.envPath}"
+
+  sh """
+    cp ${config.composeFile} ${config.envPath}/
+    cp -r ./backend ${config.envPath}/
+    cp -r ./publish ${config.envPath}/ || true
+  """
+
+  dir(config.envPath) {
+    sh "docker-compose -f ${config.composeFile} down || true"
+    sh "docker-compose -f ${config.composeFile} up -d --build"
   }
 }
