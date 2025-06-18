@@ -2,94 +2,63 @@ pipeline {
   agent any
 
   environment {
-    LANG = 'pt_BR.UTF-8'
-    LC_ALL = 'pt_BR.UTF-8'
-    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = 'false'
-    IMAGE_NAME = 'tarefas-api:latest'
+    PUBLISH_DIR = "build/publish"
   }
 
   stages {
-    stage('Clone do repositório') {
+    stage('Clonar o repositório') {
       steps {
         checkout scm
       }
     }
 
-    stage('Restaurar dependências') {
+    stage('Testar backend') {
       steps {
-        sh 'dotnet restore ./backend/Tarefas.sln'
+        sh 'dotnet restore backend/Tarefas.sln'
+        sh 'dotnet test backend/Tarefas.sln --no-restore'
       }
     }
 
-    stage('Rodar testes unitários') {
+    stage('Build frontend e backend') {
       steps {
-        sh 'dotnet test ./backend/Tarefas.sln --no-restore --verbosity normal'
+        sh 'rm -rf ${PUBLISH_DIR}'
+        sh 'npm install --prefix frontend'
+        sh 'npm run build --prefix frontend'
+        sh 'dotnet publish backend/Tarefa.API/Tarefa.API.csproj -c Release -o ${PUBLISH_DIR}'
+        sh 'cp -r frontend/dist ${PUBLISH_DIR}/wwwroot'
       }
     }
 
-    stage('Build da imagem Docker') {
+    stage('Deploy para homologação') {
       steps {
-        sh "docker build -t ${IMAGE_NAME} ."
+        sh '''
+          docker cp ${PUBLISH_DIR}/. backend-homolog:/app
+          docker exec backend-homolog pkill -f "dotnet" || true
+          docker exec -d backend-homolog dotnet /app/Tarefa.API.dll
+        '''
       }
     }
 
-    stage('Deploy Homologação') {
+    stage('Validar aplicação') {
       steps {
-        script {
-          deployApp(
-            envPath: '/home/univates/apps/homolog',
-            composeFile: 'docker-compose.homolog.yml'
-          )
-        }
+        sh 'curl --fail http://localhost:8082 || (echo "❌ Backend falhou em homologação" && exit 1)'
       }
     }
 
-    stage('Deploy Produção') {
-      when {
-        branch 'main'
-      }
+    stage('Aprovar produção') {
       steps {
-        input message: 'Deseja implantar em produção?', ok: 'Sim, implantar'
-        script {
-          deployApp(
-            envPath: '/home/univates/apps/producao',
-            composeFile: 'docker-compose.producao.yml'
-          )
-        }
+        input message: 'Deploy para produção?', ok: 'Sim, pode subir'
       }
     }
-  }
-}
 
-def deployApp(Map config) {
-  sh """
-  echo "➡️ Criando diretório de destino em: ${config.envPath}"
-  mkdir -p ${config.envPath}
-
-  echo "📁 Copiando arquivos para ${config.envPath}..."
-
-  if [ -f ${config.composeFile} ]; then
-    cp ${config.composeFile} ${config.envPath}/
-  else
-    echo "❌ Arquivo ${config.composeFile} não encontrado no repositório!"
-    exit 1
-  fi
-
-  [ -d ./backend ] && cp -r ./backend ${config.envPath}/ || echo "⚠️ Pasta ./backend não encontrada"
-  [ -d ./nginx ] && cp -r ./nginx ${config.envPath}/ || echo "⚠️ Pasta ./nginx não encontrada"
-  [ -d ./frontend/dist ] && cp -r ./frontend ${config.envPath}/ || echo "⚠️ Pasta ./frontend/dist não encontrada (frontend não será servido)"
-  [ -d ./publish ] && cp -r ./publish ${config.envPath}/ || echo "ℹ️ Pasta ./publish não existe, ignorando"
-  [ -f ./Dockerfile ] && cp ./Dockerfile ${config.envPath}/ || echo "⚠️ Dockerfile não encontrado"
-  """
-
-
-  dir(config.envPath) {
-    sh """
-      echo "🧹 Finalizando containers anteriores (se houver)..."
-      docker-compose -f ${config.composeFile} down || true
-
-      echo "🚀 Subindo nova stack..."
-      docker-compose -f ${config.composeFile} up -d --build
-    """
+    stage('Deploy para produção') {
+      steps {
+        sh '''
+          docker cp ${PUBLISH_DIR}/. backend-prod:/app
+          docker exec backend-prod pkill -f "dotnet" || true
+          docker exec -d backend-prod dotnet /app/Tarefa.API.dll
+        '''
+      }
+    }
   }
 }
