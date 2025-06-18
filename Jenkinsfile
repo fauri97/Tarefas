@@ -77,7 +77,9 @@ def deployApp(Map config) {
 
     [ -d ./backend ] && cp -r ./backend ${config.envPath}/ || echo "⚠️ Pasta ./backend não encontrada"
     [ -d ./nginx ] && cp -r ./nginx ${config.envPath}/ || echo "⚠️ Pasta ./nginx não encontrada"
+    [ -d ./frontend/dist ] && cp -r ./frontend ${config.envPath}/ || echo "⚠️ Pasta ./frontend/dist não encontrada (frontend não será servido)"
     [ -d ./publish ] && cp -r ./publish ${config.envPath}/ || echo "ℹ️ Pasta ./publish não existe, ignorando"
+
   """
 
   dir(config.envPath) {
