@@ -9,7 +9,6 @@ pipeline {
   }
 
   stages {
-
     stage('Clone do repositório') {
       steps {
         checkout scm
@@ -63,16 +62,31 @@ pipeline {
 }
 
 def deployApp(Map config) {
-  sh "mkdir -p ${config.envPath}"
-
   sh """
-    cp ${config.composeFile} ${config.envPath}/
-    cp -r ./backend ${config.envPath}/
-    cp -r ./publish ${config.envPath}/ || true
+    echo "➡️ Criando diretório de destino em: ${config.envPath}"
+    mkdir -p ${config.envPath}
+
+    echo "📁 Copiando arquivos para ${config.envPath}..."
+
+    if [ -f ${config.composeFile} ]; then
+      cp ${config.composeFile} ${config.envPath}/
+    else
+      echo "❌ Arquivo ${config.composeFile} não encontrado no repositório!"
+      exit 1
+    fi
+
+    [ -d ./backend ] && cp -r ./backend ${config.envPath}/ || echo "⚠️ Pasta ./backend não encontrada"
+    [ -d ./nginx ] && cp -r ./nginx ${config.envPath}/ || echo "⚠️ Pasta ./nginx não encontrada"
+    [ -d ./publish ] && cp -r ./publish ${config.envPath}/ || echo "ℹ️ Pasta ./publish não existe, ignorando"
   """
 
   dir(config.envPath) {
-    sh "docker-compose -f ${config.composeFile} down || true"
-    sh "docker-compose -f ${config.composeFile} up -d --build"
+    sh """
+      echo "🧹 Finalizando containers anteriores (se houver)..."
+      docker-compose -f ${config.composeFile} down || true
+
+      echo "🚀 Subindo nova stack..."
+      docker-compose -f ${config.composeFile} up -d --build
+    """
   }
 }
