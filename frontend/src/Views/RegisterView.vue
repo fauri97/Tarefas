@@ -30,7 +30,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/AuthStore'
-import { toast } from 'vue3-toastify';
 
 const AuthStore = useAuthStore()
 const router = useRouter()
