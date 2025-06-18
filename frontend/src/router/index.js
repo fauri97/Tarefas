@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../Views/LoginView.vue'
-import TasksView from '../views/TasksView.vue'
+import TasksView from '../Views/TasksView.vue'
 import RegisterView from '@/Views/RegisterView.vue'
 
 const routes = [
