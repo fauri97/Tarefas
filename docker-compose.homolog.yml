@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  api:
+    image: tarefas-api:latest
+    container_name: tarefas-api-homolog
+    ports:
+      - "5001:80"
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: postgres-homolog
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: Tarefas
+    volumes:
+      - homolog_pgdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-homolog
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  homolog_pgdata:
