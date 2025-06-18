@@ -8,12 +8,7 @@ RUN npm install && npm run build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-backend
 WORKDIR /app
 
-COPY backend/Tarefas.sln ./
-COPY backend/Tarefa.API/*.csproj ./Tarefa.API/
-COPY backend/Tarefa.Application/*.csproj ./Tarefa.Application/
-COPY backend/Tarefa.Domain/*.csproj ./Tarefa.Domain/
-COPY backend/Tarefa.Exception/*.csproj ./Tarefa.Exception/
-COPY backend/Tarefa.Infra/*.csproj ./Tarefa.Infra/
+COPY backend/ ./
 RUN dotnet restore
 
 COPY backend/. ./
