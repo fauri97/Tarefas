@@ -16,7 +16,7 @@ services:
   backend:
     container_name: tarefas-api-producao
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     depends_on:
       - db

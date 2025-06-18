@@ -63,24 +63,25 @@ pipeline {
 
 def deployApp(Map config) {
   sh """
-    echo "➡️ Criando diretório de destino em: ${config.envPath}"
-    mkdir -p ${config.envPath}
+  echo "➡️ Criando diretório de destino em: ${config.envPath}"
+  mkdir -p ${config.envPath}
 
-    echo "📁 Copiando arquivos para ${config.envPath}..."
+  echo "📁 Copiando arquivos para ${config.envPath}..."
 
-    if [ -f ${config.composeFile} ]; then
-      cp ${config.composeFile} ${config.envPath}/
-    else
-      echo "❌ Arquivo ${config.composeFile} não encontrado no repositório!"
-      exit 1
-    fi
+  if [ -f ${config.composeFile} ]; then
+    cp ${config.composeFile} ${config.envPath}/
+  else
+    echo "❌ Arquivo ${config.composeFile} não encontrado no repositório!"
+    exit 1
+  fi
 
-    [ -d ./backend ] && cp -r ./backend ${config.envPath}/ || echo "⚠️ Pasta ./backend não encontrada"
-    [ -d ./nginx ] && cp -r ./nginx ${config.envPath}/ || echo "⚠️ Pasta ./nginx não encontrada"
-    [ -d ./frontend/dist ] && cp -r ./frontend ${config.envPath}/ || echo "⚠️ Pasta ./frontend/dist não encontrada (frontend não será servido)"
-    [ -d ./publish ] && cp -r ./publish ${config.envPath}/ || echo "ℹ️ Pasta ./publish não existe, ignorando"
-
+  [ -d ./backend ] && cp -r ./backend ${config.envPath}/ || echo "⚠️ Pasta ./backend não encontrada"
+  [ -d ./nginx ] && cp -r ./nginx ${config.envPath}/ || echo "⚠️ Pasta ./nginx não encontrada"
+  [ -d ./frontend/dist ] && cp -r ./frontend ${config.envPath}/ || echo "⚠️ Pasta ./frontend/dist não encontrada (frontend não será servido)"
+  [ -d ./publish ] && cp -r ./publish ${config.envPath}/ || echo "ℹ️ Pasta ./publish não existe, ignorando"
+  [ -f ./Dockerfile ] && cp ./Dockerfile ${config.envPath}/ || echo "⚠️ Dockerfile não encontrado"
   """
+
 
   dir(config.envPath) {
     sh """
