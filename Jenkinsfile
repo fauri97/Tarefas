@@ -8,11 +8,7 @@ pipeline {
   stages {
     stage('Clonar o repositório') {
       steps {
-        git(
-          url: 'git@github.com:fauri97/Tarefas.git',
-          credentialsId: 'github-ssh',
-          branch: 'main'
-        )
+        git url: 'https://github.com/fauri97/Tarefas.git', branch: 'main'
       }
     }
 
