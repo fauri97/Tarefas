@@ -35,7 +35,7 @@ pipeline {
     stage('Subir homologação se necessário') {
       steps {
         sh '''
-          docker start backend-homolog || docker-compose -f infra/homolog/docker-compose.yml up -d
+          docker-compose -f infra/homolog/docker-compose.yml up -d
         '''
       }
     }
@@ -70,7 +70,7 @@ pipeline {
     stage('Subir produção se necessário') {
       steps {
         sh '''
-            docker start backend-prod || docker-compose -f infra/prod/docker-compose.yml up -d
+            docker-compose -f infra/prod/docker-compose.yml up -d
             '''
       }
     }
