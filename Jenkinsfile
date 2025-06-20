@@ -34,8 +34,25 @@ pipeline {
 
     stage('Subir homologação se necessário') {
       steps {
+        sh 'docker-compose -f infra/homolog/docker-compose.yml up -d'
+      }
+    }
+
+    stage('Configurar Nginx (homolog)') {
+      steps {
         sh '''
-          docker-compose -f infra/homolog/docker-compose.yml up -d
+          docker exec frontend-homolog sh -c 'cat > /etc/nginx/conf.d/default.conf <<EOF
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files \\$uri \\$uri/ /index.html;
+    }
+}
+EOF'
         '''
       }
     }
@@ -48,7 +65,7 @@ pipeline {
           docker exec backend-homolog sh -c "chmod -R 755 /usr/share/nginx/html"
           docker exec backend-homolog sh -c "pkill -f 'dotnet /app/Tarefa.API.dll' || true"
           docker exec -d backend-homolog dotnet /app/Tarefa.API.dll
-          docker exec backend-homolog sh -c "nginx -s reload || nginx"
+          docker exec frontend-homolog nginx -s reload || docker exec frontend-homolog nginx
         '''
       }
     }
@@ -69,9 +86,26 @@ pipeline {
 
     stage('Subir produção se necessário') {
       steps {
+        sh 'docker-compose -f infra/prod/docker-compose.yml up -d'
+      }
+    }
+
+    stage('Configurar Nginx (produção)') {
+      steps {
         sh '''
-            docker-compose -f infra/prod/docker-compose.yml up -d
-            '''
+          docker exec frontend-prod sh -c 'cat > /etc/nginx/conf.d/default.conf <<EOF
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        try_files \\$uri \\$uri/ /index.html;
+    }
+}
+EOF'
+        '''
       }
     }
 
@@ -83,7 +117,7 @@ pipeline {
           docker exec backend-prod sh -c "chmod -R 755 /usr/share/nginx/html"
           docker exec backend-prod sh -c "pkill -f 'dotnet /app/Tarefa.API.dll' || true"
           docker exec -d backend-prod dotnet /app/Tarefa.API.dll
-          docker exec backend-prod sh -c "nginx -s reload || nginx"
+          docker exec frontend-prod nginx -s reload || docker exec frontend-prod nginx
         '''
       }
     }
