@@ -33,8 +33,11 @@ pipeline {
       steps {
         sh '''
           docker cp ${PUBLISH_DIR}/. backend-homolog:/app
-          docker exec backend-homolog sh -c "command -v ps >/dev/null 2>&1 && ps -ef | grep dotnet | grep -v grep | awk '{print \\$2}' | xargs -r kill || true"
+          docker cp ${PUBLISH_DIR}/wwwroot/. backend-homolog:/usr/share/nginx/html/
+          docker exec backend-homolog sh -c "chmod -R 755 /usr/share/nginx/html"
+          docker exec backend-homolog sh -c "command -v ps >/dev/null 2>&1 && ps -ef | grep dotnet | grep -v grep | awk '{print $2}' | xargs -r kill || true"
           docker exec -d backend-homolog dotnet /app/Tarefa.API.dll
+          docker exec backend-homolog sh -c "nginx -s reload || nginx"
         '''
       }
     }
@@ -57,8 +60,11 @@ pipeline {
       steps {
         sh '''
           docker cp ${PUBLISH_DIR}/. backend-prod:/app
-          docker exec backend-prod sh -c "command -v ps >/dev/null 2>&1 && ps -ef | grep dotnet | grep -v grep | awk '{print \\$2}' | xargs -r kill || true"
+          docker cp ${PUBLISH_DIR}/wwwroot/. backend-prod:/usr/share/nginx/html/
+          docker exec backend-prod sh -c "chmod -R 755 /usr/share/nginx/html"
+          docker exec backend-prod sh -c "command -v ps >/dev/null 2>&1 && ps -ef | grep dotnet | grep -v grep | awk '{print $2}' | xargs -r kill || true"
           docker exec -d backend-prod dotnet /app/Tarefa.API.dll
+          docker exec backend-prod sh -c "nginx -s reload || nginx"
         '''
       }
     }
