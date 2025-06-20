@@ -32,7 +32,7 @@ services:
     container_name: frontend-homolog
     volumes:
       - frontend_homolog_volume:/usr/share/nginx/html
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "8081:80"
     depends_on:
