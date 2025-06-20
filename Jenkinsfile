@@ -21,11 +21,22 @@ pipeline {
 
     stage('Build frontend e backend') {
       steps {
-        sh 'rm -rf ${PUBLISH_DIR}'
-        sh 'npm install --prefix frontend'
-        sh 'npm run build --prefix frontend'
-        sh 'dotnet publish backend/Tarefa.API/Tarefa.API.csproj -c Release -o ${PUBLISH_DIR}'
-        sh 'cp -r frontend/dist ${PUBLISH_DIR}/wwwroot'
+        sh '''
+          rm -rf ${PUBLISH_DIR}
+          npm install --prefix frontend
+          npm run build --prefix frontend
+          dotnet publish backend/Tarefa.API/Tarefa.API.csproj -c Release -o ${PUBLISH_DIR}
+          mkdir -p ${PUBLISH_DIR}/wwwroot
+          cp -r frontend/dist/* ${PUBLISH_DIR}/wwwroot/
+        '''
+      }
+    }
+
+    stage('Subir homologação se necessário') {
+      steps {
+        sh '''
+          docker start backend-homolog || docker-compose -f ~/infra/homolog/docker-compose.yml up -d
+        '''
       }
     }
 
@@ -35,7 +46,7 @@ pipeline {
           docker cp ${PUBLISH_DIR}/. backend-homolog:/app
           docker cp ${PUBLISH_DIR}/wwwroot/. backend-homolog:/usr/share/nginx/html/
           docker exec backend-homolog sh -c "chmod -R 755 /usr/share/nginx/html"
-          docker exec backend-homolog sh -c "command -v ps >/dev/null 2>&1 && ps -ef | grep dotnet | grep -v grep | awk '{print $2}' | xargs -r kill || true"
+          docker exec backend-homolog sh -c "pkill -f 'dotnet /app/Tarefa.API.dll' || true"
           docker exec -d backend-homolog dotnet /app/Tarefa.API.dll
           docker exec backend-homolog sh -c "nginx -s reload || nginx"
         '''
@@ -56,13 +67,21 @@ pipeline {
       }
     }
 
+    stage('Subir produção se necessário') {
+      steps {
+        sh '''
+          docker start backend-prod || docker-compose -f ~/infra/prod/docker-compose.yml up -d
+        '''
+      }
+    }
+
     stage('Deploy para produção') {
       steps {
         sh '''
           docker cp ${PUBLISH_DIR}/. backend-prod:/app
           docker cp ${PUBLISH_DIR}/wwwroot/. backend-prod:/usr/share/nginx/html/
           docker exec backend-prod sh -c "chmod -R 755 /usr/share/nginx/html"
-          docker exec backend-prod sh -c "command -v ps >/dev/null 2>&1 && ps -ef | grep dotnet | grep -v grep | awk '{print $2}' | xargs -r kill || true"
+          docker exec backend-prod sh -c "pkill -f 'dotnet /app/Tarefa.API.dll' || true"
           docker exec -d backend-prod dotnet /app/Tarefa.API.dll
           docker exec backend-prod sh -c "nginx -s reload || nginx"
         '''
