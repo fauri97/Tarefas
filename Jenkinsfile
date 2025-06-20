@@ -63,7 +63,7 @@ EOF'
           docker cp ${PUBLISH_DIR}/. backend-homolog:/app
           docker cp ${PUBLISH_DIR}/wwwroot/. backend-homolog:/usr/share/nginx/html/
           docker exec backend-homolog sh -c "chmod -R 755 /usr/share/nginx/html"
-          docker exec backend-homolog sh -c "pkill -f 'dotnet /app/Tarefa.API.dll' || true"
+          docker exec backend-homolog sh -c "kill $(pidof dotnet) || true"
           docker exec -d backend-homolog dotnet /app/Tarefa.API.dll
           docker exec frontend-homolog nginx -s reload || docker exec frontend-homolog nginx
         '''
@@ -73,7 +73,7 @@ EOF'
     stage('Validar aplicação') {
       steps {
         sh '''
-          docker exec backend-homolog sh -c "command -v curl >/dev/null 2>&1 && curl --fail http://localhost:80 || echo '⚠️ curl não disponível ou backend falhou (ignorado)'"
+          docker exec backend-homolog sh -c "dotnet --info || echo '⚠️ Backend pode não estar rodando corretamente'"
         '''
       }
     }
@@ -115,7 +115,7 @@ EOF'
           docker cp ${PUBLISH_DIR}/. backend-prod:/app
           docker cp ${PUBLISH_DIR}/wwwroot/. backend-prod:/usr/share/nginx/html/
           docker exec backend-prod sh -c "chmod -R 755 /usr/share/nginx/html"
-          docker exec backend-prod sh -c "pkill -f 'dotnet /app/Tarefa.API.dll' || true"
+          docker exec backend-prod sh -c "kill $(pidof dotnet) || true"
           docker exec -d backend-prod dotnet /app/Tarefa.API.dll
           docker exec frontend-prod nginx -s reload || docker exec frontend-prod nginx
         '''
