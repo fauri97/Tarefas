@@ -13,7 +13,7 @@ using Tarefa.Application.UseCases.Tasks.ExportToPDF;
 
 namespace Tarefa.API.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     [AuthenticatedUser]
     public class TaskController : ControllerBase

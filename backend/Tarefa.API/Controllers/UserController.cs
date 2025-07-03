@@ -5,7 +5,7 @@ using Tarefa.Application.UseCases.Users.Create.Dto;
 
 namespace Tarefa.API.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
