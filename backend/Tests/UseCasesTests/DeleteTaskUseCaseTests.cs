@@ -45,6 +45,12 @@ namespace UseCasesTests
         }
 
         [Fact]
+        public void Teste_Inutil_Sempre_Passa()
+        {
+            Assert.True(true);
+        }
+
+        [Fact]
         public async Task Deve_Lancar_Excecao_Quando_Tarefa_Nao_Existe()
         {
             var taskId = _faker.Random.Long(1);
