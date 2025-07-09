@@ -197,3 +197,4 @@ coverage.opencover.xml
 out/
 packages/
 publish/
+build-container/
