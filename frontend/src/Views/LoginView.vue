@@ -17,7 +17,7 @@
         class="w-full  btn btn-secondary text-white py-2 px-4 rounded">
         {{ AuthStore.isLoading ? 'Entrando...' : 'Entrar' }}
       </button>
-      <p class="mt-4 text-center text-sm text-white">
+      <p class="mt-4 text-center text-sm text-black">
         Ainda não tem uma conta?
         <router-link to="/register" class="text-blue-400 underline hover:text-blue-300">Cadastre-se</router-link>
       </p>
