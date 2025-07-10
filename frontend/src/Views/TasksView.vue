@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-3xl text-center font-bold mb-4">Tasks</h1>
+    <h1 class="text-3xl text-center font-bold mb-4">Tasks final</h1>
 
     <div class="flex flex-col md:flex-row gap-4 mb-4 justify-around">
       <div class="flex flex-col md:flex-row gap-4 mb-4 w-[300px] items-center">

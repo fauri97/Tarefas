@@ -19,8 +19,6 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 
-// Add services to the container.
-
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
